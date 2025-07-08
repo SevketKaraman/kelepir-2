@@ -1,23 +1,23 @@
 import { Lifetime } from "awilix"
-import { VendorRepository } from "../repositories/vendor"
-import { Vendor } from "../modules/vender"
+import { VendorRepository } from "../../repositories/vendor"
+import Vendor, { Vendor as VendorType } from "../../modules/vendor/models/vendor"
 import { Repository } from "typeorm"
 
 class VendorService {
   static LIFE_TIME = Lifetime.SCOPED
 
-  protected vendorRepository_: Repository<Vendor>
+  protected vendorRepository_: Repository<VendorType>
 
   constructor(container) {
     this.vendorRepository_ = VendorRepository(container.manager)
   }
 
-  async create(data: Partial<Vendor>): Promise<Vendor> {
+  async create(data: Partial<VendorType>): Promise<VendorType>  {
     const vendor = this.vendorRepository_.create(data)
     return await this.vendorRepository_.save(vendor)
   }
 
-  async list(): Promise<Vendor[]> {
+  async list(): Promise<VendorType[]> {
     return await this.vendorRepository_.find()
   }
 
@@ -27,3 +27,4 @@ class VendorService {
 }
 
 export default VendorService
+
