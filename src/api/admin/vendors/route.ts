@@ -1,37 +1,43 @@
-// src/api/admin/vendors/route.ts
-import * as dotenv from "dotenv"
-dotenv.config()
+import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
+import { VENDOR_MODULE } from "../../../modules/vendor"
+import VendorModuleService from "../../../modules/vendor/service"
 
+export async function POST(req: MedusaRequest, res: MedusaResponse) {
+  try {
+    const vendorService: VendorModuleService = req.scope.resolve(VENDOR_MODULE)
+    const { name, email } = req.body
 
-import { Request, Response } from "express"
+    if (!name || !email) {
+      return res.status(400).json({ 
+        message: "Name and email are required." 
+      })
+    }
 
-export async function POST(req: Request, res: Response) {
-  const adminToken = req.headers["x-medusa-access-token"] as string
+    const vendor = await vendorService.create({
+      name,
+      email,
+      is_approved: false,
+    })
 
-  console.log("=== TOKEN DEBUG ===")
-  console.log("Received token:", adminToken)
-  console.log("Expected token:", process.env.MEDUSA_ADMIN_SECRET)
-  console.log("Token match:", adminToken === process.env.MEDUSA_ADMIN_SECRET)
-  console.log("===================")
-
-  if (adminToken !== process.env.MEDUSA_ADMIN_SECRET) {
-    console.log("Token validation failed - returning 401")
-    return res.status(401).json({ message: "Unauthorized" })
+    return res.status(201).json({ vendor })
+  } catch (error) {
+    console.error("Error creating vendor:", error)
+    return res.status(500).json({ 
+      message: "Internal server error" 
+    })
   }
-
-  const vendorService = (req as any).scope.resolve("vendorService")
-  const { name, email } = req.body
-
-  if (!name || !email) {
-    return res.status(400).json({ message: "Name and email are required." })
-  }
-
-  const vendor = await vendorService.create({
-    name,
-    email,
-    is_approved: false,
-  })
-
-  return res.status(200).json({ vendor })
 }
-export default POST
+
+export async function GET(req: MedusaRequest, res: MedusaResponse) {
+  try {
+    const vendorService: VendorModuleService = req.scope.resolve(VENDOR_MODULE)
+    const vendors = await vendorService.list()
+
+    return res.status(200).json({ vendors })
+  } catch (error) {
+    console.error("Error listing vendors:", error)
+    return res.status(500).json({ 
+      message: "Internal server error" 
+    })
+  }
+}
