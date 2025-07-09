@@ -24,12 +24,13 @@
   },
   "include": [
     "**/*",
-    ".medusa/types/*"
   ],
-  "exclude": [
-    "node_modules",
-    ".medusa/server",
-    ".medusa/admin",
-    ".cache"
+"exclude": [
+  "node_modules",
+  ".medusa/server",
+  ".medusa/admin",
+   "src/admin",
+  "src/api/admin/index.ts"
   ]
 }
+
